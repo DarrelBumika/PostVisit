@@ -91,11 +91,11 @@ function parseVisitRow(row: any): Visit {
     diagnosis: row.diagnosis,
     symptoms: row.symptoms || [],
     findings: row.findings,
-    medications: JSON.parse(row.medications),
+    medications: typeof row.medications === 'string' ? JSON.parse(row.medications) : row.medications,
     instructions: row.instructions,
     followUpDate: row.follow_up_date ? new Date(row.follow_up_date) : undefined,
     doctorName: row.doctor_name,
-    notes: row.notes,
+    notes: row.notes ?? undefined,
     createdAt: new Date(row.created_at),
   };
 }
