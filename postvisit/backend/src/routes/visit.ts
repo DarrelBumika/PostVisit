@@ -5,12 +5,13 @@ import { ApiResponse } from '../types';
 const router = Router();
 
 /**
- * GET /api/visit/:token
- * Retrieve visit data by token
+ * GET /api/visit
+ * Retrieve visit data by token provided in the Authorization header
  */
-router.get('/:token', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const { token } = req.params;
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
 
     if (!token) {
       const error: ApiResponse<null> = {
@@ -25,7 +26,7 @@ router.get('/:token', async (req: Request, res: Response) => {
     if (!visit) {
       const error: ApiResponse<null> = {
         success: false,
-        error: 'Invalid or expired token',
+        error: 'Invalid token',
       };
       return res.status(404).json(error);
     }
