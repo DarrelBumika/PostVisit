@@ -56,7 +56,7 @@ describe('LLM Service', () => {
     expect(context).toContain('You should rest');
   });
 
-  test('callClaude should be called with proper context', async () => {
+  test('buildChatContext should return a string', () => {
     const context = buildChatContext(mockVisit, []);
     expect(context).toBeDefined();
     expect(typeof context).toBe('string');
