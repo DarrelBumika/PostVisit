@@ -94,6 +94,7 @@ ${context}`;
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
         },
+        timeout: 30000, // 30 second timeout
       }
     );
 
@@ -103,8 +104,13 @@ ${context}`;
 
     throw new Error('No response from Claude API');
   } catch (error: any) {
-    console.error('Claude API error:', error.response?.data || error.message);
-    throw new Error(`Failed to get response from Claude: ${error.message}`);
+    const status = error.response?.status;
+    const requestId = error.response?.headers?.['x-request-id'];
+    console.error('Claude API error', { status, requestId });
+    if (status) {
+      throw new Error(`Failed to get response from Claude API (status ${status})`);
+    }
+    throw new Error('Failed to get response from Claude API');
   }
 }
 
