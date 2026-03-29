@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { Visit, ChatMessage } from '@PostVisit/types';
 import ApiClient from '@PostVisit/lib/api';
 
@@ -11,7 +11,7 @@ interface VisitContextType {
   currentStep: number;
   visitHistory: Visit[];
   loadVisit: (token: string) => Promise<void>;
-  sendMessage: (message: string) => Promise<void>;
+  sendMessage: (message: string) => Promise<boolean>;
   setCurrentStep: (step: number) => void;
   resetError: () => void;
   isSendingMessage: boolean;
@@ -29,9 +29,11 @@ export const VisitProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [visitHistory, setVisitHistory] = useState<Visit[]>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
-  const loadVisit = async (visitToken: string) => {
+  const loadVisit = useCallback(async (visitToken: string) => {
     setLoading(true);
     setError(null);
+    setCurrentStep(0);
+    setChatMessages([]);
     try {
       const visitData = await ApiClient.fetchVisit(visitToken);
       setVisit(visitData);
@@ -45,12 +47,12 @@ export const VisitProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const sendMessage = async (message: string) => {
+  const sendMessage = async (message: string): Promise<boolean> => {
     if (!visit || !token) {
       setError('Visit data not loaded');
-      return;
+      return false;
     }
     setIsSendingMessage(true);
     setError(null);
@@ -70,9 +72,11 @@ export const VisitProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         createdAt: new Date().toISOString(),
       };
       setChatMessages((prev) => [...prev, assistantMessage]);
+      return true;
     } catch (err: any) {
       setError(err.message || 'Failed to send message');
       setChatMessages((prev) => prev.slice(0, -1));
+      return false;
     } finally {
       setIsSendingMessage(false);
     }

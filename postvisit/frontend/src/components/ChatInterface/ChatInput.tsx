@@ -7,11 +7,14 @@ export const ChatInput: React.FC = () => {
 
   const handleSend = async () => {
     if (input.trim() === '') return;
-    await sendMessage(input);
-    setInput('');
+    const success = await sendMessage(input);
+    // Only clear the input if sendMessage did not explicitly indicate failure.
+    if (success !== false) {
+      setInput('');
+    }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -29,7 +32,7 @@ export const ChatInput: React.FC = () => {
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="Ask me a question about your visit..."
           className="flex-1 p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-600"
           rows={2}
