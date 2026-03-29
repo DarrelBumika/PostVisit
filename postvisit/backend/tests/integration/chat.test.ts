@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { app } from '../../src/server';
 import { createVisit } from '../../src/models/Visit';
+import { getChatHistory } from '../../src/models/ChatMessage';
 
 describe('Chat API Endpoint', () => {
   const mockVisit = {
@@ -61,6 +62,13 @@ describe('Chat API Endpoint', () => {
 
     expect(response1.status).toBe(200);
 
+    // Verify user message was stored in database
+    let chatHistory = await getChatHistory(visit.id);
+    expect(chatHistory.length).toBeGreaterThanOrEqual(1);
+    expect(chatHistory[chatHistory.length - 2]?.content).toBe('What is my diagnosis?');
+    expect(chatHistory[chatHistory.length - 2]?.role).toBe('user');
+    expect(chatHistory[chatHistory.length - 1]?.role).toBe('assistant');
+
     // Second request should have context from first
     const response2 = await request(app).post('/api/chat').send({
       visitId: visit.id,
@@ -70,5 +78,12 @@ describe('Chat API Endpoint', () => {
 
     expect(response2.status).toBe(200);
     expect(response2.body.data.content).toBeDefined();
+
+    // Verify both messages are persisted in database
+    chatHistory = await getChatHistory(visit.id);
+    expect(chatHistory.length).toBeGreaterThanOrEqual(4);
+    const messages = chatHistory.map(m => m.content);
+    expect(messages).toContain('What is my diagnosis?');
+    expect(messages).toContain('What should I do about it?');
   });
 });
