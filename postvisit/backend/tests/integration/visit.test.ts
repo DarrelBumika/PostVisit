@@ -23,10 +23,12 @@ describe('Visit API Endpoint', () => {
     notes: 'Check BP weekly',
   };
 
-  test('GET /api/visit/:token should return visit data for valid token', async () => {
+  test('GET /api/visit should return visit data for valid token in Authorization header', async () => {
     const visit = await createVisit(mockVisit);
 
-    const response = await request(app).get(`/api/visit/${visit.token}`);
+    const response = await request(app)
+      .get('/api/visit')
+      .set('Authorization', `Bearer ${visit.token}`);
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
@@ -34,16 +36,19 @@ describe('Visit API Endpoint', () => {
     expect(response.body.data.diagnosis).toBe(mockVisit.diagnosis);
   });
 
-  test('GET /api/visit/:token should return 404 for invalid token', async () => {
-    const response = await request(app).get('/api/visit/invalid-token-xyz');
+  test('GET /api/visit should return 400 for missing Authorization header', async () => {
+    const response = await request(app).get('/api/visit');
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
   });
 
-  test('GET /api/visit/:token should return 400 if token is missing', async () => {
-    const response = await request(app).get('/api/visit/');
+  test('GET /api/visit should return 404 for invalid token', async () => {
+    const response = await request(app)
+      .get('/api/visit')
+      .set('Authorization', 'Bearer 0000000000000000000000000000');
 
-    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
   });
 });
