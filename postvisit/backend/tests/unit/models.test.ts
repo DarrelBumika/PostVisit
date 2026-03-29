@@ -1,32 +1,32 @@
-import { query } from '../../src/config/database';
 import { createVisit, getVisitByToken, getAllVisitsForChat } from '../../src/models/Visit';
 import { createChatMessage, getChatHistory } from '../../src/models/ChatMessage';
 import { validateToken } from '../../src/services/auth';
-import { Visit, Medication } from '../../src/types';
+import { Medication } from '../../src/types';
+
+// Shared fixtures to reduce duplication
+const mockMedications: Medication[] = [
+  {
+    name: 'Paracetamol',
+    dosage: '500mg',
+    frequency: '3x daily',
+    duration: '7 days',
+    instructions: 'After meals',
+  },
+];
+
+const mockVisit = {
+  patientName: 'John Doe',
+  visitDate: new Date('2024-01-15'),
+  diagnosis: 'Common cold',
+  symptoms: ['cough', 'fever'],
+  findings: 'Clear lungs, normal temp 38.5C',
+  medications: mockMedications,
+  instructions: 'Rest and stay hydrated',
+  doctorName: 'Dr. Smith',
+  notes: 'Follow up if symptoms persist',
+};
 
 describe('Visit Model', () => {
-  const mockMedications: Medication[] = [
-    {
-      name: 'Paracetamol',
-      dosage: '500mg',
-      frequency: '3x daily',
-      duration: '7 days',
-      instructions: 'After meals',
-    },
-  ];
-
-  const mockVisit = {
-    patientName: 'John Doe',
-    visitDate: new Date('2024-01-15'),
-    diagnosis: 'Common cold',
-    symptoms: ['cough', 'fever'],
-    findings: 'Clear lungs, normal temp 38.5C',
-    medications: mockMedications,
-    instructions: 'Rest and stay hydrated',
-    doctorName: 'Dr. Smith',
-    notes: 'Follow up if symptoms persist',
-  };
-
   test('createVisit should return a visit with token', async () => {
     const visit = await createVisit(mockVisit);
     expect(visit.id).toBeDefined();
@@ -59,28 +59,6 @@ describe('Visit Model', () => {
 });
 
 describe('ChatMessage Model', () => {
-  const mockMedications: Medication[] = [
-    {
-      name: 'Paracetamol',
-      dosage: '500mg',
-      frequency: '3x daily',
-      duration: '7 days',
-      instructions: 'After meals',
-    },
-  ];
-
-  const mockVisit = {
-    patientName: 'John Doe',
-    visitDate: new Date('2024-01-15'),
-    diagnosis: 'Common cold',
-    symptoms: ['cough', 'fever'],
-    findings: 'Clear lungs, normal temp 38.5C',
-    medications: mockMedications,
-    instructions: 'Rest and stay hydrated',
-    doctorName: 'Dr. Smith',
-    notes: 'Follow up if symptoms persist',
-  };
-
   test('createChatMessage should store user and assistant messages', async () => {
     const visit = await createVisit(mockVisit);
 
@@ -106,28 +84,6 @@ describe('ChatMessage Model', () => {
 });
 
 describe('Auth Service', () => {
-  const mockMedications: Medication[] = [
-    {
-      name: 'Paracetamol',
-      dosage: '500mg',
-      frequency: '3x daily',
-      duration: '7 days',
-      instructions: 'After meals',
-    },
-  ];
-
-  const mockVisit = {
-    patientName: 'John Doe',
-    visitDate: new Date('2024-01-15'),
-    diagnosis: 'Common cold',
-    symptoms: ['cough', 'fever'],
-    findings: 'Clear lungs, normal temp 38.5C',
-    medications: mockMedications,
-    instructions: 'Rest and stay hydrated',
-    doctorName: 'Dr. Smith',
-    notes: 'Follow up if symptoms persist',
-  };
-
   test('validateToken should return visit for valid token', async () => {
     const visit = await createVisit(mockVisit);
     const result = await validateToken(visit.token);
