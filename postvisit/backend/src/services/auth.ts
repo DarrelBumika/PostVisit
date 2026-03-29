@@ -6,8 +6,8 @@ import { Visit } from '../types';
  * Returns null if token is invalid or visit not found
  */
 export async function validateToken(token: string): Promise<Visit | null> {
-  // Basic token format validation
-  if (!token || typeof token !== 'string' || token.length < 20) {
+  // Basic token format validation: expect a 32-character hexadecimal string
+  if (!token || typeof token !== 'string' || !/^[0-9a-fA-F]{32}$/.test(token)) {
     return null;
   }
 
@@ -20,15 +20,15 @@ export async function validateToken(token: string): Promise<Visit | null> {
  * Extract and validate token from request
  */
 export function extractTokenFromRequest(req: any): string | null {
-  // Check query parameter first
-  if (req.query?.token && typeof req.query.token === 'string') {
-    return req.query.token;
+  // Prefer Authorization header (Bearer token)
+  const authHeader = req.headers.authorization;
+  if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
   }
 
-  // Check headers
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    return authHeader.substring(7);
+  // Optionally allow query parameter token in non-production environments
+  if (process.env.NODE_ENV !== 'production' && req.query?.token && typeof req.query.token === 'string') {
+    return req.query.token;
   }
 
   return null;
