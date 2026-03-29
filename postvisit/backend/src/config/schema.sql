@@ -1,3 +1,6 @@
+-- Enable pgcrypto extension for UUID generation
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Create visits table
 CREATE TABLE IF NOT EXISTS visits (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -6,11 +9,11 @@ CREATE TABLE IF NOT EXISTS visits (
   visit_date TIMESTAMP NOT NULL,
   diagnosis TEXT NOT NULL,
   symptoms TEXT[],
-  findings TEXT,
+  findings TEXT NOT NULL DEFAULT '',
   medications JSONB NOT NULL,
-  instructions TEXT,
+  instructions TEXT NOT NULL DEFAULT '',
   follow_up_date TIMESTAMP,
-  doctor_name VARCHAR(255),
+  doctor_name VARCHAR(255) NOT NULL DEFAULT '',
   notes TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
