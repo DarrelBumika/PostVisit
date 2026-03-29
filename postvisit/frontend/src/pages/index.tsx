@@ -46,10 +46,11 @@ export default function Home() {
         <p className="text-gray-600 mb-4">
           If you have a visit link, click the button below to get started.
         </p>
-        <Link href="/visit/demo">
-          <a className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-lg font-semibold">
-            View Sample Visit
-          </a>
+        <Link
+          href="/visit/demo"
+          className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-lg font-semibold"
+        >
+          View Sample Visit
         </Link>
         <p className="text-sm text-gray-500 mt-8">
           For healthcare providers: Check your visit link format with your
