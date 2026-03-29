@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express';
 import { validateToken } from '../services/auth';
 import { callClaude, extractSources } from '../services/llm';
 import { createChatMessage, getChatHistory } from '../models/ChatMessage';
-import { getVisitByToken } from '../models/Visit';
 import { ChatRequest, ApiResponse } from '../types';
 
 const router = Router();
@@ -34,11 +33,11 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(401).json(error);
     }
 
-    // Store user message
-    const userMessage = await createChatMessage(visitId, 'user', message);
-
-    // Get chat history for context
+    // Get chat history for context (before storing current message to avoid duplication)
     const chatHistory = await getChatHistory(visitId);
+
+    // Store user message
+    await createChatMessage(visitId, 'user', message);
 
     // Call LLM
     let assistantResponse: string;
